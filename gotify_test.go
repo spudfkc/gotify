@@ -5,10 +5,15 @@ import (
 	"testing"
 )
 
+func TestSearchTypes(t *testing.T) {
+	types := []SearchType{TRACK, ARTIST, ALBUM}
+	searchResult := Search("Spun", types)
+	fmt.Println("%s", searchResult)
+}
+
 func TestSearchTrack(t *testing.T) {
-	trackName := "Spun"
-	json := SearchTrack(trackName)
-	fmt.Println("%s", json)
+	track := SearchTrack("Spun")
+	fmt.Println("%s", track)
 }
 
 func TestParseTrack(t *testing.T) {

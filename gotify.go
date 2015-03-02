@@ -22,5 +22,5 @@ type Track struct {
 }
 
 type Authenticator interface {
-	login(username string, password string) (Auth, error)
+	// TODO
 }

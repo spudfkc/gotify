@@ -33,17 +33,11 @@ func Search(what string, types []SearchType) SearchResult {
 	}
 
 	typeParam = typeParam[1:]
-	log.Println("typeParam", url+typeParam)
 
-	return SearchResult{}
-}
-
-func SearchTrack(s string) []Track {
-	url := baseUrl
 	url += "?type="
-	url += string(TRACK)
+	url += typeParam
 	url += "&q="
-	url += s // FIXME need to encode this URL
+	url += what
 
 	client := &http.Client{}
 
@@ -63,10 +57,49 @@ func SearchTrack(s string) []Track {
 		log.Fatal(err)
 	}
 
-	unparsedTracks, err := json.GetObjectArray("tracks", "items")
-	if err != nil {
-		log.Fatal(err)
+	result := SearchResult{}
+
+	if contains(types, TRACK) {
+		unparsedTracks, err := json.GetObjectArray("tracks", "items")
+		if err == nil {
+			result.Tracks = parseTracks(unparsedTracks)
+		}
 	}
 
-	return parseTracks(unparsedTracks)
+	if contains(types, ARTIST) {
+		unparsedArtists, err := json.GetObjectArray("artists", "items")
+		if err == nil {
+			result.Artists = parseArtists(unparsedArtists)
+		}
+	}
+
+	if contains(types, ALBUM) {
+		unparsedAlbums, err := json.GetObjectArray("albums", "items")
+		if err == nil {
+			result.Albums = parseAlbums(unparsedAlbums)
+		}
+	}
+
+	return result
+}
+
+func SearchTrack(s string) []Track {
+	return Search(s, []SearchType{TRACK}).Tracks
+}
+
+func SearchArtist(s string) []Artist {
+	return Search(s, []SearchType{ARTIST}).Artists
+}
+
+func SearchAlbum(s string) []Album {
+	return Search(s, []SearchType{ALBUM}).Albums
+}
+
+func contains(t []SearchType, s SearchType) bool {
+	for _, item := range t {
+		if item == s {
+			return true
+		}
+	}
+	return false
 }

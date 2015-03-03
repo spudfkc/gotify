@@ -12,12 +12,18 @@ func TestSearchTypes(t *testing.T) {
 }
 
 func TestSearchTrack(t *testing.T) {
-	track := SearchTrack("Spun")
-	fmt.Println("%s", track)
+	tracks := SearchTrack("Incidental")
+
+	for _, track := range tracks {
+		fmt.Println("Track name:", track.Name)
+		for _, artist := range track.Artists {
+			fmt.Println("Artists:", artist.Name)
+		}
+		fmt.Println("---")
+	}
 }
 
 func TestParseTrack(t *testing.T) {
-
 }
 
 func TestParseArtist(t *testing.T) {

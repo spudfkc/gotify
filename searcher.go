@@ -51,7 +51,7 @@ func Search(what string, types []SearchType) SearchResult {
 	}
 
 	json, err := jason.NewObjectFromReader(res.Body)
-	res.Body.Close()
+	defer res.Body.Close()
 
 	if err != nil {
 		log.Fatal(err)

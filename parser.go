@@ -74,3 +74,7 @@ func parseArtists(o []*jason.Object) []Artist {
 
 	return artists
 }
+
+func parsePlaylist(o *jason.Object) SpotifyPlaylist {
+	return SpotifyPlaylist{}
+}

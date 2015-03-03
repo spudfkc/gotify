@@ -15,11 +15,11 @@ func TestSearchTrack(t *testing.T) {
 	tracks := SearchTrack("Incidental")
 
 	for _, track := range tracks {
-		fmt.Println("Track name:", track.Name)
+		// fmt.Println("Track name:", track.Name)
 		for _, artist := range track.Artists {
 			fmt.Println("Artists:", artist.Name)
 		}
-		fmt.Println("---")
+		// fmt.Println("---")
 	}
 }
 

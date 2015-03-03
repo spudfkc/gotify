@@ -1,7 +1,9 @@
 package gotify
 
 type Auth struct {
-	Owner string
+	OwnerName   string
+	OwnerId     string
+	AccessToken string
 }
 
 type Album struct {

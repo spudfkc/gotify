@@ -1,5 +1,9 @@
 package gotify
 
+import (
+	"net/http"
+)
+
 type Auth struct {
 	OwnerName   string
 	OwnerId     string
@@ -29,12 +33,19 @@ type Authenticator interface {
 
 func requestAuthToken() {
 	baseUrl := "https://accounts.spotify.com/authorize"
-	clientId := "client_id="
+	clientId := "client_id=xxx"
 	responseType := "response_type=token"
-	redirectUri := "redirect_uri="
-	state := "state="
-	scope := "scope="
-	showDialog := "show_dialog="
+	redirectUri := "redirect_uri=https://www.google.com"
+	// state := "state="
+	// scope := "scope="
+	// showDialog := "show_dialog="
+
+	url := baseUrl + "?" + clientId + "&" + responseType + "&" + redirectUri
+	client := &http.Client{}
+
+	req, err := http.NewRequest("GET", url, nil)
+
+	res, err := client.Do(req)
 
 	// response will redirect user to redirectUri with info in query params:
 	// access_token

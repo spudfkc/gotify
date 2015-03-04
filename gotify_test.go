@@ -31,3 +31,7 @@ func TestParseArtist(t *testing.T) {
 
 func TestParseAlbum(t *testing.T) {
 }
+
+func TestAuth(t *testing.T) {
+
+}

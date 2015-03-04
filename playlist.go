@@ -3,9 +3,11 @@ package gotify
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"github.com/antonholmquist/jason"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type Playlist interface {
@@ -14,35 +16,55 @@ type Playlist interface {
 }
 
 func CreatePlaylist(name string, public bool, auth Auth) (Playlist, error) {
+	log.Println("creating playlist")
 	playlist := SpotifyPlaylist{}
 	playlist.Name = name
 	playlist.Public = public
 
 	b, err := json.Marshal(playlist)
-	if b != nil {
-		log.Fatal(err)
-	}
+
+	// FIXME why is this failing with <nil> ???
+	// if b != nil {
+	// 	log.Fatal("failed to marshal playlist", err)
+	// }
 
 	url := "https://api.spotify.com/v1/users/"
 	url = url + auth.OwnerId + "/playlists"
 
 	client := &http.Client{}
 
+	log.Println("building request")
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", auth.AccessToken)
 
+	log.Println("doing request")
 	res, err := client.Do(req)
+
+	if err != nil {
+		log.Fatal("http request failed", err)
+	}
+
+	log.Println("reading json")
+
+	json, err := jason.NewObjectFromReader(res.Body)
+	defer res.Body.Close()
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	json, err := jason.NewObjectFromReader(res.Body)
-	defer res.Body.Close()
+	var nPlaylist SpotifyPlaylist
 
-	nPlaylist := parsePlaylist(json)
+	errorJson, err := json.GetObject("error")
+	if err == nil {
+		message, _ := errorJson.GetString("message")
+		status, _ := errorJson.GetInt64("status")
+		err = errors.New(strconv.FormatInt(status, 10) + ": " + message)
+	} else {
+		nPlaylist = parsePlaylist(json)
+	}
 
 	return &nPlaylist, err
 }

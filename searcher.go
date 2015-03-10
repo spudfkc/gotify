@@ -39,8 +39,6 @@ func Search(what string, types []SearchType) SearchResult {
 	url += "&q="
 	url += what
 
-	client := &http.Client{}
-
 	req, err := http.NewRequest("GET", url, nil)
 	req.Header.Add("Accept", "application/json")
 

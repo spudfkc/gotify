@@ -15,7 +15,7 @@ type Playlist interface {
 	AddTrack(t *Track) (err error)
 }
 
-func CreatePlaylist(name string, public bool, auth Auth) (Playlist, error) {
+func CreatePlaylist(name string, public bool, user User) (Playlist, error) {
 	log.Println("creating playlist")
 	playlist := SpotifyPlaylist{}
 	playlist.Name = name
@@ -29,15 +29,16 @@ func CreatePlaylist(name string, public bool, auth Auth) (Playlist, error) {
 	// }
 
 	url := "https://api.spotify.com/v1/users/"
-	url = url + auth.OwnerId + "/playlists"
-
-	client := &http.Client{}
+	url = url + user.Id + "/playlists"
 
 	log.Println("building request")
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Authorization", auth.AccessToken)
+
+	log.Println("has auth? ", _auth)
+
+	req.Header.Add("Authorization", "Bearer "+_auth.Token.AccessToken)
 
 	log.Println("doing request")
 	res, err := client.Do(req)
@@ -69,7 +70,7 @@ func CreatePlaylist(name string, public bool, auth Auth) (Playlist, error) {
 	return &nPlaylist, err
 }
 
-func GetPlaylist(name string, auth Auth) (Playlist, error) {
+func GetPlaylist(name string) (Playlist, error) {
 	panic("not yet implmented")
 }
 

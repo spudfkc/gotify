@@ -7,7 +7,7 @@ import (
 
 func TestCreatePlaylist(t *testing.T) {
 	log.Println("testing create playlist...")
-	// auth := Auth{"ncc", "spudfkc", "xxx", "xxx", ""}
+	// auth := Auth{"ncc", "spudfkc", "xxx", "", ""}
 	// _, err := CreatePlaylist("gogoplaylist", true, auth)
 	// if err != nil {
 	// 	log.Println("Error while creating playlist", err)

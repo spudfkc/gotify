@@ -2,8 +2,8 @@ package gotify
 
 import (
 	"golang.org/x/oauth2"
+	"log"
 	"net/http"
-	// "log"
 	"os"
 )
 
@@ -33,12 +33,10 @@ type Track struct {
 }
 
 type Oauth2Authenticator struct {
-	Conf oauth2.Config
+	Conf *oauth2.Config
 }
 
-type SpotifyClient struct {
-	Client Client
-}
+var client *http.Client
 
 const (
 	ENV_CLIENT_ID     = "GOTIFY_CLIENT_ID"
@@ -50,7 +48,7 @@ const (
 )
 
 func CreateAuthenticator() *Oauth2Authenticator {
-	conf := oauth2.Config{
+	conf := &oauth2.Config{
 		ClientID:     os.Getenv(ENV_CLIENT_ID),
 		ClientSecret: os.Getenv(ENV_CLIENT_SECRET),
 		RedirectURL:  os.Getenv(ENV_REDIRECT_URL),
@@ -64,9 +62,25 @@ func CreateAuthenticator() *Oauth2Authenticator {
 	return &Oauth2Authenticator{conf}
 }
 
-func CreateClient(res *http.Request) {
+func GetToken(res *http.Request, auth *Oauth2Authenticator) *oauth2.Token {
 	params := res.URL.Query()
+	code := params.Get("code")
 
+	if code == "" {
+		log.Fatal("Unable to retrieve Auth Code from Spotify")
+	}
+
+	log.Println("params", params)
+	token, err := auth.Conf.Exchange(oauth2.NoContext, code)
+	if err != nil {
+		log.Fatal("Failed to get Authorization Token from Spotify", err)
+	}
+	return token
+}
+
+func CreateClient(auth *Oauth2Authenticator, token *oauth2.Token) *http.Client {
+	client = auth.Conf.Client(oauth2.NoContext, token)
+	return client
 }
 
 // url := conf.AuthCodeURL("state", oauth2.AccessTypeOffline)

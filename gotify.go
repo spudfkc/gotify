@@ -1,13 +1,18 @@
 package gotify
 
 import (
+	"golang.org/x/oauth2"
 	"net/http"
+	// "log"
+	"os"
 )
 
 type Auth struct {
-	OwnerName   string
-	OwnerId     string
-	AccessToken string
+	OwnerName    string
+	OwnerId      string
+	ClientId     string
+	ClientSecret string
+	AccessToken  string
 }
 
 type Album struct {
@@ -27,37 +32,55 @@ type Track struct {
 	Artists []Artist
 }
 
-type Authenticator interface {
-	// TODO
+type Oauth2Authenticator struct {
+	Conf oauth2.Config
 }
 
-func requestAuthToken() {
-	baseUrl := "https://accounts.spotify.com/authorize"
-	clientId := "client_id=xxx"
-	responseType := "response_type=token"
-	redirectUri := "redirect_uri=https://www.google.com"
-	// state := "state="
-	// scope := "scope="
-	// showDialog := "show_dialog="
-
-	url := baseUrl + "?" + clientId + "&" + responseType + "&" + redirectUri
-	client := &http.Client{}
-
-	req, err := http.NewRequest("GET", url, nil)
-
-	res, err := client.Do(req)
-
-	// response will redirect user to redirectUri with info in query params:
-	// access_token
-	// token_type: Bearer
-	// expires_in: time in seconds
-	// state: value of "state" provided in first request
-	//
-	// ERROR VALUES (exist if error)
-	// error: reason for error
-	// state: value of "state" from above
-	//
-	//
-	// can now user the access_token with header:
-	// Authorization: Bearer {accessToken}
+type SpotifyClient struct {
+	Client Client
 }
+
+const (
+	ENV_CLIENT_ID     = "GOTIFY_CLIENT_ID"
+	ENV_CLIENT_SECRET = "GOTIFY_CLIENT_SECRET"
+	ENV_REDIRECT_URL  = "GOTIFY_REDIRECT_URL"
+
+	SPOTIFY_AUTH_URL  = "https://accounts.spotify.com/authorize"
+	SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
+)
+
+func CreateAuthenticator() *Oauth2Authenticator {
+	conf := oauth2.Config{
+		ClientID:     os.Getenv(ENV_CLIENT_ID),
+		ClientSecret: os.Getenv(ENV_CLIENT_SECRET),
+		RedirectURL:  os.Getenv(ENV_REDIRECT_URL),
+		Scopes:       []string{},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  SPOTIFY_AUTH_URL,
+			TokenURL: SPOTIFY_TOKEN_URL,
+		},
+	}
+
+	return &Oauth2Authenticator{conf}
+}
+
+func CreateClient(res *http.Request) {
+	params := res.URL.Query()
+
+}
+
+// url := conf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+// log.Println("Visit the URL for auth dialog", url)
+
+// var code string
+// if _, err := fmt.Scan(&code); err != nil {
+// 	log.Fatal(err)
+// }
+
+// token, err := conf.Exchange(oauth2.NoContext, code)
+// if err != nil {
+// 	log.Fatal(err)
+// }
+
+// client := conf.Client(oauth2.NoContext, token)
+// client.Get("code")
